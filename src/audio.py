@@ -36,7 +36,7 @@ def scale_noise_to_snr(clean, noise, snr_db, clean_power=None):
     if p_noise == 0 or p_clean == 0:
         return np.zeros_like(clean)
     target = p_clean / (10 ** (snr_db / 10))
-    return noise * np.sqrt(target / p_noise)
+    return (noise * np.sqrt(target / p_noise)).astype(np.float32)
 
 
 def add_white_noise(clean, snr_db, gaussian, clean_power=None):

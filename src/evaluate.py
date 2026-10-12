@@ -92,7 +92,7 @@ def main():
         pred_dist[name] = cm.sum(0)
         confusions[name] = top_confusions(cm)
         cms[name] = cm
-        examples[name] = noisy[example_idx]
+        examples[name] = noisy[example_idx].copy()  # copy: a view would keep `noisy` alive
         print(f"{name:28s} acc = {acc:.4f}")
         # keep per-utterance predictions for further analysis
         test[f"pred_{name}"] = [C.WORDS[p] for p in pred]
