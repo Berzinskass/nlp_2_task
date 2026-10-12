@@ -1,0 +1,54 @@
+{
+  "dataset": "Google Speech Commands v0.02",
+  "words": [
+    "yes",
+    "no",
+    "up",
+    "down",
+    "left",
+    "right",
+    "on",
+    "off",
+    "stop",
+    "go"
+  ],
+  "sample_rates_hz": [
+    16000
+  ],
+  "n_recordings": 38546,
+  "n_speakers": 2492,
+  "speakers_per_split": {
+    "test": 498,
+    "train": 1745,
+    "val": 249
+  },
+  "recordings_per_split": {
+    "train": 27235,
+    "test": 7641,
+    "val": 3670
+  },
+  "recordings_per_word": {
+    "yes": 4044,
+    "no": 3941,
+    "up": 3723,
+    "down": 3917,
+    "left": 3801,
+    "right": 3778,
+    "on": 3845,
+    "off": 3745,
+    "stop": 3872,
+    "go": 3880
+  },
+  "duration_s": {
+    "min": 0.298625,
+    "max": 1.0,
+    "mean": 0.9820810411586157,
+    "share_shorter_than_1s": 0.0926425569449489
+  },
+  "speaker_overlap": {
+    "train&test": 0,
+    "train&val": 0,
+    "val&test": 0
+  },
+  "split_seed": 42
+}
