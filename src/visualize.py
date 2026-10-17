@@ -75,7 +75,7 @@ def fig_features(df):
     plt.close(fig)
 
     # one example per word, shared colour scale
-    fig, axes = plt.subplots(2, 5, figsize=(12, 4.4), sharex=True, sharey=True)
+    fig, axes = plt.subplots(2, 5, figsize=(12, 3.3), sharex=True, sharey=True)
     mels = [audio.log_mel(audio.fix_length(audio.load_wav(
         C.DATASET_DIR / train[train.word == w].iloc[0].path))) for w in C.WORDS]
     lo, hi = np.percentile(np.stack(mels), [1, 99.9])
@@ -87,7 +87,6 @@ def fig_features(df):
     for ax in axes[1]:
         ax.set_xlabel("time (s)")
     fig.colorbar(im, ax=axes, label="log power", shrink=0.8)
-    fig.suptitle("Log-mel spectrograms, one training example per word", x=0.06, ha="left")
     fig.savefig(C.FIG_DIR / "features_all_words.png")
     plt.close(fig)
 
@@ -110,24 +109,23 @@ def fig_training():
 # --- clean vs noisy example -------------------------------------------------
 def fig_noisy_example():
     ex = np.load(RES_DIR / "example_waveforms.npz")
-    conds = ["clean", "white_10dB", "white_-5dB", "real_10dB", "real_-5dB"]
+    conds = ["clean", "white_-5dB", "real_-5dB"]
     mels = {c: audio.log_mel(ex[c]) for c in conds}
     lo, hi = np.percentile(np.stack(list(mels.values())), [1, 99.9])
     ylim = np.abs(np.stack([ex[c] for c in conds])).max() * 1.05
-    fig, axes = plt.subplots(len(conds), 2, figsize=(10, 9), sharex=True,
-                             gridspec_kw={"width_ratios": [1, 1.25]})
-    for r, c in enumerate(conds):
+    fig, axes = plt.subplots(2, len(conds), figsize=(11, 3.5), sharex=True, sharey="row",
+                             gridspec_kw={"height_ratios": [1, 1.6]})
+    for k, c in enumerate(conds):
         color = SERIES[0] if c == "clean" else SERIES[1] if "white" in c else SERIES[2]
-        axes[r, 0].plot(time_axis(len(ex[c])), ex[c], color=color, lw=0.6)
-        axes[r, 0].set_ylim(-ylim, ylim)
-        axes[r, 0].set_ylabel("amplitude")
-        axes[r, 0].set_title(label(c), loc="left")
-        im = show_logmel(axes[r, 1], mels[c], label(c), lo, hi)
-    axes[-1, 0].set_xlabel("time (s)")
-    axes[-1, 1].set_xlabel("time (s)")
-    fig.colorbar(im, ax=axes[:, 1], label="log power", shrink=0.6)
-    fig.suptitle(f'Clean vs noisy test example - word "yes" ({ex["path"]})',
-                 x=0.06, ha="left")
+        axes[0, k].plot(time_axis(len(ex[c])), ex[c], color=color, lw=0.6)
+        axes[0, k].set_ylim(-ylim, ylim)
+        axes[0, k].set_title(label(c), loc="left")
+        im = show_logmel(axes[1, k], mels[c], "", lo, hi)
+        axes[1, k].set_xlabel("time (s)")
+        if k:
+            axes[1, k].set_ylabel("")
+    axes[0, 0].set_ylabel("amplitude")
+    fig.colorbar(im, ax=axes[1, :], label="log power", shrink=0.9)
     fig.savefig(C.FIG_DIR / "clean_vs_noisy_example.png")
     plt.close(fig)
 
@@ -160,26 +158,28 @@ def fig_accuracy(acc):
 
 
 def fig_per_word(per_word):
-    data = per_word[MAIN_CONDS]
-    fig, ax = plt.subplots(figsize=(12, 4.6))
+    conds = (["clean"] + [f"white_{s}dB" for s in (20, 10, 0, -5)]
+             + [f"real_{s}dB" for s in (20, 10, 0, -5)])
+    data = per_word[conds]
+    fig, ax = plt.subplots(figsize=(10, 3.6))
     im = ax.imshow(data.values, cmap=SEQ, vmin=0, vmax=1, aspect="auto")
-    ax.set_xticks(range(len(MAIN_CONDS)), [label(c) for c in MAIN_CONDS], rotation=40, ha="right")
+    ticks = [label(c).replace("white Gaussian", "white").replace(" ", "\n", 1) for c in conds]
+    ax.set_xticks(range(len(conds)), ticks)
     ax.set_yticks(range(len(C.WORDS)), C.WORDS)
     for i in range(data.shape[0]):
         for j in range(data.shape[1]):
             v = data.values[i, j]
-            ax.text(j, i, f"{v:.2f}", ha="center", va="center", fontsize=7,
+            ax.text(j, i, f"{v:.2f}", ha="center", va="center", fontsize=7.5,
                     color="white" if v > 0.6 else INK)
-    ax.set_title("Per-word accuracy (recall) by condition", loc="left")
     ax.spines[:].set_visible(False)
-    fig.colorbar(im, ax=ax, label="accuracy", shrink=0.8)
+    fig.colorbar(im, ax=ax, label="accuracy", shrink=0.9)
     fig.savefig(C.FIG_DIR / "per_word_accuracy.png")
     plt.close(fig)
 
 
 def fig_confusions(cms):
-    conds = ["clean", "white_0dB", "white_-10dB", "real_0dB", "real_-10dB"]
-    fig, axes = plt.subplots(1, len(conds), figsize=(20, 4.4))
+    conds = ["clean", "white_0dB", "real_0dB"]
+    fig, axes = plt.subplots(1, len(conds), figsize=(13, 4.6))
     for ax, c in zip(axes, conds):
         cm = cms[c]
         norm = cm / cm.sum(1, keepdims=True)
@@ -196,7 +196,6 @@ def fig_confusions(cms):
         ax.set_xlabel("predicted")
         ax.spines[:].set_visible(False)
     axes[0].set_ylabel("true word")
-    fig.suptitle("Row-normalised confusion matrices (values >= 0.02 shown)", x=0.02, ha="left")
     fig.savefig(C.FIG_DIR / "confusion_matrices.png")
     plt.close(fig)
 
