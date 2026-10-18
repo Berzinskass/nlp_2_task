@@ -217,7 +217,7 @@ plt.savefig("results/clean_vs_noisy.png")
 plt.close()
 
 # Plot: accuracy vs SNR
-plt.figure(figsize=(8, 3.5))
+plt.figure(figsize=(9, 3))
 plt.plot(SNRS, accuracy["white"], "o-", label="white noise")
 plt.plot(SNRS, accuracy["real"], "s-", label="real noise")
 plt.axhline(clean_acc, color="gray", linestyle="--", label="clean")
