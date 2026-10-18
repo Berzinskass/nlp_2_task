@@ -1,6 +1,1 @@
 data/
-__pycache__/
-*.pyc
-outputs/features_clean.npz
-outputs/results/test_predictions.csv
-outputs/results/example_waveforms.npz
