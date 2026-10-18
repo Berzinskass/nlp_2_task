@@ -89,7 +89,7 @@ print("Feature shape of one recording:", X[0].shape)
 
 # Feature plot for one word
 yes_signal = signals[WORDS.index("yes") * CLIPS_PER_WORD]
-fig, ax = plt.subplots(2, 1, figsize=(8, 6))
+fig, ax = plt.subplots(1, 2, figsize=(12, 3.5))
 ax[0].plot(np.arange(SR) / SR, yes_signal)
 ax[0].set(title='Waveform of "yes"', xlabel="time (s)")
 librosa.display.specshow(log_mel(yes_signal), sr=SR, hop_length=160, x_axis="time",
@@ -206,7 +206,7 @@ example = test_signals[0]
 examples = {"clean": example,
             "white noise 0 dB": add_noise(example, white_noise(SR), 0),
             "real noise 0 dB": add_noise(example, real_noise(SR), 0)}
-fig, ax = plt.subplots(2, 3, figsize=(14, 6))
+fig, ax = plt.subplots(2, 3, figsize=(14, 5.5))
 for col, (title, signal) in enumerate(examples.items()):
     ax[0, col].plot(np.arange(SR) / SR, signal)
     ax[0, col].set(title=title, xlabel="time (s)")
@@ -217,7 +217,7 @@ plt.savefig("results/clean_vs_noisy.png")
 plt.close()
 
 # Plot: accuracy vs SNR
-plt.figure(figsize=(6, 4))
+plt.figure(figsize=(8, 3.5))
 plt.plot(SNRS, accuracy["white"], "o-", label="white noise")
 plt.plot(SNRS, accuracy["real"], "s-", label="real noise")
 plt.axhline(clean_acc, color="gray", linestyle="--", label="clean")
@@ -225,6 +225,7 @@ plt.xlabel("SNR (dB)")
 plt.ylabel("accuracy")
 plt.legend()
 plt.grid()
+plt.tight_layout()
 plt.savefig("results/accuracy_vs_snr.png")
 plt.close()
 
