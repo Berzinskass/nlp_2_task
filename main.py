@@ -1,18 +1,3 @@
-"""
-Task 2: 10-word speech recognition under noise.
-
-1. Load part of the Google Speech Commands dataset and split it by speaker.
-2. Turn every recording into a log-mel spectrogram.
-3. Train a small CNN on the clean training recordings.
-4. Test the CNN on clean speech, white noise and real background noise.
-
-Run:  python main.py
-"""
-import glob
-import os
-import random
-import tarfile
-import urllib.request
 
 import librosa
 import librosa.display
@@ -35,8 +20,6 @@ np.random.seed(0)
 torch.manual_seed(0)
 os.makedirs("results", exist_ok=True)
 
-
-# ---------------------------------------------------------------- 1. Dataset
 if not os.path.isdir(DATA_DIR):
     print("Downloading the dataset (2.4 GB)...")
     os.makedirs(DATA_DIR)
@@ -68,8 +51,6 @@ for label, word in enumerate(WORDS):
     n_test = np.sum((labels == label) & is_test)
     print(f"  {word:6s} train {n_train:4d}  test {n_test:4d}")
 
-
-# ------------------------------------------------------- 2. Feature extraction
 def load(path):
     signal, _ = librosa.load(path, sr=SR)
     return librosa.util.fix_length(signal, size=SR)  # pad with zeros to exactly 1 s
@@ -99,8 +80,6 @@ plt.tight_layout()
 plt.savefig("results/feature_yes.png")
 plt.close()
 
-
-# ----------------------------------------------------------------- 3. Model
 mean, std = X[~is_test].mean(), X[~is_test].std()
 
 
@@ -139,9 +118,7 @@ def predict(features):
     model.eval()
     with torch.no_grad():
         return model(to_tensor(features)).argmax(dim=1).numpy()
-
-
-# ---------------------------------------------------------------- 4. Testing
+        
 test_signals = [s for s, t in zip(signals, is_test) if t]
 y_test = labels[is_test]
 
@@ -238,4 +215,3 @@ for i, c in enumerate(["clean", "white 0 dB", "real 0 dB"]):
 plt.tight_layout()
 plt.savefig("results/confusion_matrices.png")
 plt.close()
-print("\nFigures saved in results/")
